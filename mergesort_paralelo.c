@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
     
     // PROCESSO 0: Criar array original
     if (rank == 0) {
-        printf("=== MERGESORT PARALELO SEGURO ===\n");
+        printf("=== MERGESORT PARALELO ===\n");
         printf("Numero de processos: %d\n", num_processos);
         printf("Tamanho por processo: %d\n\n", tamanho_parte);
         
