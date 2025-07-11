@@ -19,7 +19,7 @@ void juntar(int arr[], int inicio, int meio, int fim) {
     int *direita = (int*)malloc(tamanho2 * sizeof(int));
     
     if (!esquerda || !direita) {
-        printf("Erro: falha na alocação de memória\n");
+        printf("Erro: falha na alocacao de memoria\n");
         if (esquerda) free(esquerda);
         if (direita) free(direita);
         return;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     // Verificar se o número de processos é válido
     if (tamanho_total % num_processos != 0) {
         if (rank == 0) {
-            printf("ERRO: Tamanho do array (%d) deve ser divisível pelo número de processos (%d)\n", 
+            printf("ERRO: Tamanho do array (%d) deve ser divisivel pelo numero de processos (%d)\n", 
                    tamanho_total, num_processos);
         }
         MPI_Finalize();
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         
         array_completo = (int*)malloc(tamanho_total * sizeof(int));
         if (!array_completo) {
-            printf("ERRO: Falha na alocação do array completo\n");
+            printf("ERRO: Falha na alocacao do array completo\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
         
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
     // Alocar memória para a parte local
     int *minha_parte = (int*)malloc(tamanho_parte * sizeof(int));
     if (!minha_parte) {
-        printf("ERRO: Processo %d falhou na alocação de memória\n", rank);
+        printf("ERRO: Processo %d falhou na alocacao de memoria\n", rank);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     if (rank == 0 && !array_completo) {
         array_completo = (int*)malloc(tamanho_total * sizeof(int));
         if (!array_completo) {
-            printf("ERRO: Falha na alocação para gather\n");
+            printf("ERRO: Falha na alocacao para gather\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
     }
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < tamanho_total; i++) {
             printf("%d ", array_completo[i]);
         }
-        printf("\n\n=== SUCESSO ===\n");
+        printf("\n\n=== FIM ===\n");
         
         free(array_completo);
     }
