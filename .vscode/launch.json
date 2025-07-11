@@ -1,13 +1,13 @@
 {
     "configurations": [
       {
-        "name": "MPI Debug (4 processos)",
+        "name": "MPI Debug (2 processos)",
         "type": "cppdbg",
         "request": "launch",
         "program": "C:\\MPI\\Bin\\mpiexec.exe",
         "args": [
           "-n",
-          "4",
+          "2",
           "${fileDirname}\\${fileBasenameNoExtension}.exe"
         ],
         "stopAtEntry": false,
