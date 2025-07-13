@@ -34,7 +34,6 @@ void juntar(int arr[], int inicio, int meio, int fim)
     // Verificar se a alocação foi bem-sucedida
     if (!esquerda || !direita)
     {
-
         printf("Erro: falha na alocacao de memoria\n");
 
         if (esquerda)
@@ -61,7 +60,6 @@ void juntar(int arr[], int inicio, int meio, int fim)
     // Mesclar as duas partes em ordem crescente
     while (i < tamanho1 && j < tamanho2)
     {
-
         if (esquerda[i] <= direita[j])
         {
             arr[k] = esquerda[i]; // Elemento da esquerda é menor ou igual
@@ -79,7 +77,6 @@ void juntar(int arr[], int inicio, int meio, int fim)
     // Copiar elementos restantes da parte esquerda (se houver)
     while (i < tamanho1)
     {
-
         arr[k] = esquerda[i];
         i++;
         k++;
@@ -88,7 +85,6 @@ void juntar(int arr[], int inicio, int meio, int fim)
     // Copiar elementos restantes da parte direita (se houver)
     while (j < tamanho2)
     {
-
         arr[k] = direita[j];
         j++;
         k++;
@@ -112,7 +108,6 @@ void mergeSort(int arr[], int inicio, int fim)
     // Condição de parada: se há mais de um elemento para ordenar
     if (inicio < fim && arr != NULL)
     {
-
         // Calcular ponto médio (evita overflow)
         int meio = inicio + (fim - inicio) / 2;
 
@@ -134,7 +129,6 @@ void mergeSort(int arr[], int inicio, int fim)
 // ============================================================================
 double testeSequencial(int tamanho)
 {
-
     // Alocar array para teste sequencial
     int *arr = (int *)malloc(tamanho * sizeof(int));
 
@@ -162,8 +156,7 @@ double testeSequencial(int tamanho)
 // ============================================================================
 int main(int argc, char *argv[])
 {
-
-    int rank, num_processos;
+    int rank, num_processos;     // Armazenar o identificador do processo atual e o número total de processos
     int tamanho_total = 2097152; // 2^21 elementos (aproximadamente 2 milhões)
 
     // ========================================================================
@@ -179,7 +172,6 @@ int main(int argc, char *argv[])
     // Verificar se o array pode ser dividido igualmente entre os processos
     if (tamanho_total % num_processos != 0)
     {
-
         if (rank == 0)
         {
             printf("ERRO: Tamanho do array (%d) deve ser divisivel pelo numero de processos (%d)\n",
@@ -205,7 +197,6 @@ int main(int argc, char *argv[])
     // ========================================================================
     if (rank == 0)
     {
-
         // Exibir informações sobre a execução
         printf("\n=== MERGESORT PARALELO ===\n");
         printf("Numero de processos: %d\n", num_processos);
@@ -237,7 +228,7 @@ int main(int argc, char *argv[])
     if (!minha_parte)
     {
         printf("ERRO: Processo %d falhou na alocacao de memoria\n", rank);
-        MPI_Abort(MPI_COMM_WORLD, 1);
+        MPI_Abort(MPI_COMM_WORLD, 1); // Aborta a execução de todos os processos MPI com código de erro 1
     }
 
     // ========================================================================
@@ -251,6 +242,7 @@ int main(int argc, char *argv[])
                 minha_parte, tamanho_parte, MPI_INT,    // Destino: parte local
                 0, MPI_COMM_WORLD);                     // Processo raiz: 0
 
+    // Calcula o tempo total gasto na operação de scatter subtraindo o tempo inicial do tempo atual
     double tempo_scatter = MPI_Wtime() - tempo_scatter_inicio;
 
     if (rank == 0)
@@ -270,6 +262,7 @@ int main(int argc, char *argv[])
     // Cada processo ordena sua parte independentemente
     mergeSort(minha_parte, 0, tamanho_parte - 1);
 
+    // Calcula o tempo total gasto na ordenação subtraindo o tempo inicial do tempo atual
     double tempo_ordenacao = MPI_Wtime() - tempo_ordenacao_inicio;
 
     if (rank == 0)
@@ -287,12 +280,13 @@ int main(int argc, char *argv[])
     // Realocar memória se necessário (precaução)
     if (rank == 0 && !array_completo)
     {
-
+        // 
         array_completo = (int *)malloc(tamanho_total * sizeof(int));
 
         if (!array_completo)
         {
             printf("ERRO: Falha na alocacao para gather\n");
+            // Aloca memória dinamicamente para um array de inteiros com tamanho_total elementos
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
     }
