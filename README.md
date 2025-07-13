@@ -51,6 +51,7 @@ pacman -S mingw-w64-ucrt-x86_64-gdb
 ## 🔧 Configurar Variáveis de Ambiente
 
 ### Via CMD (como Administrador):
+
 ```cmd
 setx MSMPI_INC "C:\MPI\SDK\Include" /M
 setx MSMPI_LIB64 "C:\MPI\SDK\Lib\x64" /M
@@ -182,7 +183,7 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 
 ---
 
-## 📋 Recomendações Práticas
+## 📋 Recomendações
 
 ### ✅ Para Máxima Performance:
 
@@ -203,7 +204,7 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 
 ---
 
-## 🏆 Conclusões Finais
+## 🏆 Conclusões
 
 1. **Escalabilidade Limitada**: MergeSort paralelo escala eficientemente apenas até 16 processos
 2. **Gargalo Principal**: Merge final sequencial limita speedup máximo
@@ -211,7 +212,7 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 4. **Granularidade**: Arrays de 2M elementos são insuficientes para muitos processos
 5. **Lei de Amdahl Validada**: Parte sequencial e overhead limitam paralelização
 
-## 📚 Contribuição Acadêmica
+## 📚 Contribuição
 
 Este estudo fornece dados empíricos precisos sobre os limites práticos da paralelização do MergeSort, demonstrando que **mais processos não garantem melhor performance** e validando teorias fundamentais de computação paralela através de medições experimentais rigorosas.
 
