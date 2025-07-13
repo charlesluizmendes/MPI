@@ -1,4 +1,27 @@
-# 📊 RELATÓRIO COMPLETO DE ESCALABILIDADE - MERGESORT PARALELO MPI
+# ⚙️ GUIA DE EXECUÇÃO
+
+## 🎯 Pré-requisitos e Configuração
+
+### Ambiente de Desenvolvimento:
+
+- **Sistema Operacional**: Windows 11
+- **Compilador**: g++ (MSYS2 UCRT64)
+- **MPI**: Microsoft MPI (MS-MPI)
+- **IDE**: Visual Studio Code
+- **Hardware**: 8 cores físicos, 16 threads lógicos
+
+### Instalação das Dependências:
+
+#### 1. Instalar MSYS2:
+
+```bash
+# Baixar e instalar MSYS2 de: https://www.msys2.org/
+# Após instalação, no terminal MSYS2:
+pacman -S mingw-w64-ucrt-x86_64-gcc
+pacman -S mingw-w64-ucrt-x86_64-gdb
+```
+
+# 📊 RELATÓRIO COMPLETO
 
 ## 🎯 Resumo Executivo
 
@@ -47,24 +70,29 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 ## 🎯 Pontos-Chave Identificados
 
 ### 🏆 Ponto Ótimo: 16 Processos
+
 - **Máximo speedup**: 3.92x
 - **Eficiência**: 24.5%
 - **Trabalho útil**: 47.0%
 - **Comunicação**: 14.0%
 
 ### ⚖️ Ponto de Equilíbrio: 32 Processos
+
 - Último ponto com speedup > 3.0x
 - Merge final torna-se gargalo dominante (42.2%)
 
 ### 📉 Início da Degradação: 64 Processos
+
 - Speedup cai para 2.64x
 - Comunicação MPI torna-se significativa (20.9%)
 
 ### 🚨 Ponto de Ruptura: 256 Processos
+
 - **Speedup < 1.0** (paralelo mais lento que sequencial)
 - Comunicação domina 50.2% do tempo
 
 ### 💥 Colapso Total: 1024+ Processos
+
 - Speedup catastrófico (0.19x e 0.05x)
 - Comunicação consome 78.9% e 91.6% do tempo
 
@@ -73,24 +101,28 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 ## 📊 Análise de Gargalos por Categoria
 
 ### 🔵 Zona Eficiente (2-16 processos)
+
 - **Característica**: Ordenação domina (47-91%)
 - **Comunicação**: Baixa (4-14%)
 - **Speedup**: Crescente (1.79x → 3.92x)
 - **Conclusão**: Paralelismo efetivo
 
 ### 🟡 Zona de Transição (32-64 processos)
+
 - **Característica**: Merge final vira gargalo principal
 - **Comunicação**: Moderada (15-21%)
 - **Speedup**: Estável/declinante (3.38x → 2.64x)
 - **Conclusão**: Ainda útil, mas com limitações
 
 ### 🟠 Zona de Degradação (128-256 processos)
+
 - **Característica**: Comunicação supera trabalho útil
 - **Comunicação**: Alta (37-50%)
 - **Speedup**: Declínio acentuado (1.91x → 0.91x)
 - **Conclusão**: Ineficiente
 
 ### 🔴 Zona de Colapso (512+ processos)
+
 - **Característica**: Comunicação domina completamente
 - **Comunicação**: Crítica (65-92%)
 - **Speedup**: Catastrófico (0.51x → 0.05x)
@@ -101,11 +133,13 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 ## 🔬 Validação da Lei de Amdahl
 
 ### Parte Sequencial Identificada:
+
 - **Merge Final**: 5% → 42% do tempo total
 - **Limite teórico**: ~2.4x speedup máximo
 - **Resultado obtido**: 3.92x (superou devido a cache effects)
 
 ### Overhead de Comunicação:
+
 - **Scatter**: Cresce de 3.4% → 76.2%
 - **Gather**: Cresce de 0.6% → 15.4%
 - **Total**: Crescimento exponencial com número de processos
@@ -115,16 +149,19 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 ## 📋 Recomendações Práticas
 
 ### ✅ Para Máxima Performance:
+
 - **Usar 8-16 processos** para arrays de ~2M elementos
 - **Speedup esperado**: 3.3x - 3.9x
 - **Eficiência**: 20-40%
 
 ### ⚖️ Para Balancear Recursos:
+
 - **Usar 4-8 processos** para eficiência alta
 - **Speedup esperado**: 2.98x - 3.32x
 - **Eficiência**: 40-75%
 
 ### ❌ Evitar:
+
 - **32+ processos** para arrays desta magnitude
 - **256+ processos** (sempre contraproducente)
 
