@@ -4,7 +4,7 @@
 #include <mpi.h>
 #include <string.h>
 
-// Função juntar - mais segura
+// Função juntar
 void juntar(int arr[], int inicio, int meio, int fim) {
     if (inicio >= fim || meio < inicio || meio >= fim) return;
     
@@ -60,7 +60,7 @@ void juntar(int arr[], int inicio, int meio, int fim) {
     free(direita);
 }
 
-// Função mergeSort - mais segura
+// Função mergeSort
 void mergeSort(int arr[], int inicio, int fim) {
     if (inicio < fim && arr != NULL) {
         int meio = inicio + (fim - inicio) / 2;
@@ -70,9 +70,25 @@ void mergeSort(int arr[], int inicio, int fim) {
     }
 }
 
+// Teste sequencial para speedup
+double testeSequencial(int tamanho) {
+    int *arr = (int*)malloc(tamanho * sizeof(int));
+    for (int i = 0; i < tamanho; i++) {
+        arr[i] = tamanho - i;
+    }
+    
+    clock_t inicio = clock();
+    mergeSort(arr, 0, tamanho - 1);
+    clock_t fim = clock();
+    
+    double tempo = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
+    free(arr);
+    return tempo;
+}
+
 int main(int argc, char *argv[]) {
     int rank, num_processos;
-    int tamanho_total = 16;
+    int tamanho_total = 2097152;  // Tamanho otimizado
     
     // Inicializar MPI
     MPI_Init(&argc, &argv);
@@ -92,10 +108,14 @@ int main(int argc, char *argv[]) {
     int *array_completo = NULL;
     int tamanho_parte = tamanho_total / num_processos;
     
+    // MEDIR TEMPO PARALELO
+    double tempo_paralelo_inicio = MPI_Wtime();
+    
     // PROCESSO 0: Criar array original
     if (rank == 0) {
-        printf("=== MERGESORT PARALELO ===\n");
+        printf("\n=== MERGESORT PARALELO ===\n");
         printf("Numero de processos: %d\n", num_processos);
+        printf("Tamanho total: %d elementos\n", tamanho_total);
         printf("Tamanho por processo: %d\n\n", tamanho_parte);
         
         array_completo = (int*)malloc(tamanho_total * sizeof(int));
@@ -104,12 +124,10 @@ int main(int argc, char *argv[]) {
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
         
-        printf("Array original: ");
+        // Preencher array sem mostrar
         for (int i = 0; i < tamanho_total; i++) {
             array_completo[i] = tamanho_total - i;
-            printf("%d ", array_completo[i]);
         }
-        printf("\n\n");
     }
     
     // Alocar memória para a parte local
@@ -124,33 +142,20 @@ int main(int argc, char *argv[]) {
                 minha_parte, tamanho_parte, MPI_INT, 
                 0, MPI_COMM_WORLD);
     
-    // Cada processo mostra o que recebeu
-    printf("Processo %d recebeu: ", rank);
-    for (int i = 0; i < tamanho_parte; i++) {
-        printf("%d ", minha_parte[i]);
+    if (rank == 0) {
+        printf("Iniciando ordenacao paralela...\n");
     }
-    printf("\n");
-    fflush(stdout);
     
     // Sincronizar
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    if (rank == 0) {
-        printf("\n--- ORDENANDO LOCALMENTE ---\n");
-        fflush(stdout);
-    }
     MPI_Barrier(MPI_COMM_WORLD);
     
     // Cada processo ordena sua parte
     mergeSort(minha_parte, 0, tamanho_parte - 1);
     
-    // Cada processo mostra o que ordenou
-    printf("Processo %d ordenou: ", rank);
-    for (int i = 0; i < tamanho_parte; i++) {
-        printf("%d ", minha_parte[i]);
+    if (rank == 0) {
+        printf("Ordenacao local concluida\n");
+        printf("Coletando resultados...\n");
     }
-    printf("\n");
-    fflush(stdout);
     
     // Sincronizar antes de juntar
     MPI_Barrier(MPI_COMM_WORLD);
@@ -171,12 +176,7 @@ int main(int argc, char *argv[]) {
     
     // PROCESSO 0: Merge final
     if (rank == 0) {
-        printf("\n--- MERGE FINAL ---\n");
-        printf("Antes do merge: ");
-        for (int i = 0; i < tamanho_total; i++) {
-            printf("%d ", array_completo[i]);
-        }
-        printf("\n");
+        printf("Executando merge final...\n");
         
         // Merge das partes ordenadas
         int tamanho_merge = tamanho_parte;
@@ -196,11 +196,28 @@ int main(int argc, char *argv[]) {
             tamanho_merge *= 2;
         }
         
-        printf("Array final: ");
-        for (int i = 0; i < tamanho_total; i++) {
-            printf("%d ", array_completo[i]);
+        printf("Ordenacao completa!\n");
+    }
+    
+    // CALCULAR TEMPO PARALELO TOTAL
+    double tempo_paralelo_total = MPI_Wtime() - tempo_paralelo_inicio;
+    
+    // SPEEDUP (só processo 0)
+    if (rank == 0) {
+        printf("\n--- SPEEDUP ---\n");
+        printf("Calculando tempo sequencial...\n");
+        double tempo_sequencial = testeSequencial(tamanho_total);
+        double speedup = tempo_sequencial / tempo_paralelo_total;
+        
+        printf("Tempo Sequencial: %.6f segundos\n", tempo_sequencial);
+        printf("Tempo Paralelo:   %.6f segundos\n", tempo_paralelo_total);
+        printf("Speedup:          %.2fx\n", speedup);
+        
+        if (speedup > 1.0) {
+            printf("Resultado: Paralelo e %.1fx MAIS RAPIDO!\n\n", speedup);
+        } else {
+            printf("Resultado: Sequencial e mais rapido\n\n");
         }
-        printf("\n\n=== FIM ===\n");
         
         free(array_completo);
     }
