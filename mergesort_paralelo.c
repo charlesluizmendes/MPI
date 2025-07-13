@@ -4,7 +4,7 @@
 #include <mpi.h>
 #include <string.h>
 
-// Função juntar
+// Função juntar - mais segura
 void juntar(int arr[], int inicio, int meio, int fim) {
     if (inicio >= fim || meio < inicio || meio >= fim) return;
     
@@ -60,7 +60,7 @@ void juntar(int arr[], int inicio, int meio, int fim) {
     free(direita);
 }
 
-// Função mergeSort
+// Função mergeSort - mais segura
 void mergeSort(int arr[], int inicio, int fim) {
     if (inicio < fim && arr != NULL) {
         int meio = inicio + (fim - inicio) / 2;
@@ -138,9 +138,11 @@ int main(int argc, char *argv[]) {
     }
     
     // Distribuir dados
+    double tempo_scatter_inicio = MPI_Wtime();
     MPI_Scatter(array_completo, tamanho_parte, MPI_INT, 
                 minha_parte, tamanho_parte, MPI_INT, 
                 0, MPI_COMM_WORLD);
+    double tempo_scatter = MPI_Wtime() - tempo_scatter_inicio;
     
     if (rank == 0) {
         printf("Iniciando ordenacao paralela...\n");
@@ -150,10 +152,12 @@ int main(int argc, char *argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
     
     // Cada processo ordena sua parte
+    double tempo_ordenacao_inicio = MPI_Wtime();
     mergeSort(minha_parte, 0, tamanho_parte - 1);
+    double tempo_ordenacao = MPI_Wtime() - tempo_ordenacao_inicio;
     
     if (rank == 0) {
-        printf("Ordenacao local concluida\n");
+        printf("Ordenacao local concluida...\n");
         printf("Coletando resultados...\n");
     }
     
@@ -170,13 +174,18 @@ int main(int argc, char *argv[]) {
     }
     
     // Juntar resultados
+    double tempo_gather_inicio = MPI_Wtime();
     MPI_Gather(minha_parte, tamanho_parte, MPI_INT,
                array_completo, tamanho_parte, MPI_INT,
                0, MPI_COMM_WORLD);
+    double tempo_gather = MPI_Wtime() - tempo_gather_inicio;
     
     // PROCESSO 0: Merge final
+    double tempo_merge_final = 0;
     if (rank == 0) {
         printf("Executando merge final...\n");
+        
+        double merge_inicio = MPI_Wtime();
         
         // Merge das partes ordenadas
         int tamanho_merge = tamanho_parte;
@@ -196,13 +205,20 @@ int main(int argc, char *argv[]) {
             tamanho_merge *= 2;
         }
         
+        tempo_merge_final = MPI_Wtime() - merge_inicio;
         printf("Ordenacao completa!\n");
     }
     
     // CALCULAR TEMPO PARALELO TOTAL
     double tempo_paralelo_total = MPI_Wtime() - tempo_paralelo_inicio;
     
-    // SPEEDUP (só processo 0)
+    // Coletar tempos máximos de todos os processos
+    double max_scatter, max_ordenacao, max_gather;
+    MPI_Reduce(&tempo_scatter, &max_scatter, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tempo_ordenacao, &max_ordenacao, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tempo_gather, &max_gather, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    
+    // SPEEDUP E GARGALOS (só processo 0)
     if (rank == 0) {
         printf("\n--- SPEEDUP ---\n");
         printf("Calculando tempo sequencial...\n");
@@ -214,9 +230,33 @@ int main(int argc, char *argv[]) {
         printf("Speedup:          %.2fx\n", speedup);
         
         if (speedup > 1.0) {
-            printf("Resultado: Paralelo e %.1fx MAIS RAPIDO!\n\n", speedup);
+            printf("Resultado: Paralelo e %.1fx MAIS RAPIDO!\n", speedup);
         } else {
-            printf("Resultado: Sequencial e mais rapido\n\n");
+            printf("Resultado: Sequencial e mais rapido\n");
+        }
+        
+        printf("\n--- ANALISE DE GARGALOS ---\n");
+        printf("Scatter (distribuicao):   %.6f segundos (%.1f%%)\n", 
+               max_scatter, (max_scatter/tempo_paralelo_total)*100);
+        printf("Ordenacao (paralela):     %.6f segundos (%.1f%%)\n", 
+               max_ordenacao, (max_ordenacao/tempo_paralelo_total)*100);
+        printf("Gather (coleta):          %.6f segundos (%.1f%%)\n", 
+               max_gather, (max_gather/tempo_paralelo_total)*100);
+        printf("Merge final (sequencial): %.6f segundos (%.1f%%)\n", 
+               tempo_merge_final, (tempo_merge_final/tempo_paralelo_total)*100);
+        
+        printf("\n--- CONCLUSOES ---\n");
+
+        if (max_ordenacao > tempo_merge_final) {
+            printf("+ Paralelismo funcionando bem\n");
+        } else {
+            printf("- Merge final e o maior gargalo\n");
+        }
+        
+        if ((max_scatter + max_gather) > max_ordenacao) {
+            printf("- Comunicacao MPI e gargalo significativo\n\n");
+        } else {
+            printf("+ Comunicacao MPI eficiente\n\n");
         }
         
         free(array_completo);
