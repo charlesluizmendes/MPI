@@ -1,4 +1,4 @@
-# ⚙️ GUIA DE EXECUÇÃO
+# ⚙️ AMBIENTE DE EXECUÇÃO
 
 ## 🎯 Pré-requisitos e Configuração
 
@@ -10,15 +10,51 @@
 - **IDE**: Visual Studio Code
 - **Hardware**: 8 cores físicos, 16 threads lógicos
 
-### Instalação das Dependências:
+## 🛠️ Instalação do C:
 
-#### 1. Instalar MSYS2:
+### Instalar MSYS2:
 
 ```bash
-# Baixar e instalar MSYS2 de: https://www.msys2.org/
-# Após instalação, no terminal MSYS2:
 pacman -S mingw-w64-ucrt-x86_64-gcc
 pacman -S mingw-w64-ucrt-x86_64-gdb
+```
+
+**Link de download:** https://www.msys2.org/
+
+## 📥 Download do MPI
+
+### Arquivos Necessários:
+
+1. **msmpisetup.exe** - Runtime do MPI
+2. **msmpisdk.msi** - SDK para desenvolvimento
+
+**Link de download:** https://www.microsoft.com/en-us/download/details.aspx?id=105289
+
+---
+
+## 🛠️ Instalar MPI
+
+### 1. Instalar Runtime (msmpisetup.exe)
+
+- Executar como Administrador
+- Durante instalação, alterar diretório para: `C:\MPI`
+- Confirmar instalação
+
+### 2. Instalar SDK (msmpisdk.msi)
+
+- Executar como Administrador  
+- Durante instalação, alterar diretório para: `C:\MPI\SDK`
+- Confirmar instalação
+
+---
+
+## 🔧 Configurar Variáveis de Ambiente
+
+### Via CMD (como Administrador):
+```cmd
+setx MSMPI_INC "C:\MPI\SDK\Include" /M
+setx MSMPI_LIB64 "C:\MPI\SDK\Lib\x64" /M
+setx PATH "%PATH%;C:\MPI\Bin" /M
 ```
 
 # 📊 RELATÓRIO COMPLETO
