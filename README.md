@@ -84,19 +84,9 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 
 ---
 
-### Speedup x Número De Processos
-
-<img width="640" height="480" alt="image" src="https://github.com/user-attachments/assets/a68548d8-0e22-4d88-b1e3-bac371917a7e" />
-
-### Eficiência x Número De Processos
-
-<img width="640" height="480" alt="image" src="https://github.com/user-attachments/assets/05550f20-2df3-45bc-9b83-c44aa7327df0" />
-
 ### Tempo Paralelo x Número De Processos
 
-<img width="640" height="480" alt="image" src="https://github.com/user-attachments/assets/59ac53c4-723f-48bc-868c-dc4f75a32381" />
-
-## 🔍 Análise Detalhada de Gargalos
+<img width="670" height="480" alt="image" src="https://github.com/user-attachments/assets/83a12274-d8df-4336-b6b6-a7c6fc460fff" />
 
 ### 📊 Evolução dos Gargalos (%)
 
@@ -118,7 +108,7 @@ Este relatório apresenta uma análise abrangente da escalabilidade do algoritmo
 
 ### Evolução Dos Gargalos
 
-<img width="640" height="480" alt="image" src="https://github.com/user-attachments/assets/5a271cf9-6b33-4421-a5e9-c13b698e03ac" />
+<img width="670" height="480" alt="image" src="https://github.com/user-attachments/assets/b49a1899-7851-4cea-bc90-cccf9f5dd4cb" />
 
 ## 🎯 Pontos-Chave Identificados
 
